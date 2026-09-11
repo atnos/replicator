@@ -20,13 +20,19 @@ dbclient-fetcher psql 16
 
 scalingo login --api-token $SCALINGO_CLI_TOKEN
 
-ADDON_ID=`scalingo --app $SOURCE_APP addons | grep postgresql | awk -F '|' '{print $3}'`
+export ADDON_ID=`scalingo --app $SOURCE_APP addons | grep -i postgresql | awk -F '│' '{print $3}'`
 
-ARCHIVE_NAME=backup.tar.gz
+if [ -z "$ADDON_ID" ]
+then
+  echo "Unable to find PostgreSQL addon ID for $SOURCE_APP"
+  exit 1
+fi
+
+export ARCHIVE_NAME=backup.tar.gz
 
 scalingo --app $SOURCE_APP --addon $ADDON_ID backups-download --output $ARCHIVE_NAME
 
-BACKUP_NAME=`tar -tf $ARCHIVE_NAME | tail -n 1`
+export BACKUP_NAME=`tar -tf $ARCHIVE_NAME | tail -n 1`
 
 tar -C /app -xvf $ARCHIVE_NAME
 
