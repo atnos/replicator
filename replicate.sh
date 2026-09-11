@@ -16,7 +16,7 @@ then
 fi
 
 install-scalingo-cli
-dbclient-fetcher psql
+dbclient-fetcher psql 16
 
 scalingo login --api-token $SCALINGO_CLI_TOKEN
 
