@@ -36,4 +36,8 @@ export BACKUP_NAME=`tar -tf $ARCHIVE_NAME | tail -n 1`
 
 tar -C /app -xvf $ARCHIVE_NAME
 
-pg_restore --clean --if-exists --no-owner --no-privileges --no-comments --dbname $DATABASE_URL /app$BACKUP_NAME
+# spatial_ref_sys belongs to the PostGIS extension and cannot be written by
+# the addon user: drop it from the restore list to avoid a permission error.
+pg_restore --list /app$BACKUP_NAME | grep -v -E 'TABLE DATA public spatial_ref_sys|TABLE public spatial_ref_sys' > /app/restore.list
+
+pg_restore --clean --if-exists --no-owner --no-privileges --no-comments --use-list /app/restore.list --dbname $DATABASE_URL /app$BACKUP_NAME
